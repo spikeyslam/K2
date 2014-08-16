@@ -59,7 +59,7 @@ function k2_init_advanced_navigation() {
 	//  Set in motion all of K2's AJAX hotness (RA and LS).
 	function initK2() {
 		K2.AjaxURL	= "<?php bloginfo('url'); ?>/" // For our AJAX calls
-		K2.Animations	= <?php echo (int) get_option('k2animations') ?> // Fetch the animations option
+		K2.Animations	= <?php echo (int) get_theme_mod('k2animations') ?> // Fetch the animations option
 
 		// Insert the Rolling Archives UI and init.
 		K2.RollingArchives = new RollingArchives({
@@ -85,12 +85,6 @@ function k2_init_advanced_navigation() {
 
 		// Parse and execute waiting fragments.
 		jQuery(window).trigger( 'hashchange' );
-
-		<?php /* JS to run after jQuery Ajax calls */ if ( get_option('k2ajaxdonejs') != '' ): ?>
-		jQuery('.content').ajaxComplete(function () {
-			<?php echo get_option('k2ajaxdonejs'); ?>
-		});
-		<?php endif; ?>
 	}
 
 	// Make ready K2's sub-systems
@@ -101,7 +95,7 @@ function k2_init_advanced_navigation() {
 } // End Init_Scripts()
 
 // Is advanced navigation enabled?
-if ( get_option('k2advnav') != '0')
+if ( '1' == get_theme_mod('k2advnav') )
 	add_action( 'wp_head', 'k2_init_advanced_navigation' );
 
 /**
@@ -194,23 +188,24 @@ function k2_body_class_filter($classes) {
 	else
 		$classes[] = 'columns-one';
 
-	switch ( get_option('k2usestyle') ) {
-		case 0: // No CSS
+	$k2usestyle = get_theme_mod('k2usestyle');
+	switch ( $k2usestyle ) {
+		case '0': // No CSS
 			$classes[] = 'nok2css';
 			break;
-		case 1: // Sidebars Left
+		case '1': // Sidebars Left
 			$classes[] = 'sidebarsleft';
 			break;
-		case 2: // Sidebars Right
+		case '2': // Sidebars Right
 			$classes[] = 'sidebarsright';
 			break;
-		case 3: // Flanking Sidebars
+		case '3': // Flanking Sidebars
 			$classes[] = 'flankingsidebars';
 			break;
 	}
 
 	// If animations are turned on
-	if ( '1' == get_option('k2animations') )
+	if ( '1' == get_theme_mod('k2animations') )
 		$classes[] = 'animations';
 
 	// Only on single posts and static pages

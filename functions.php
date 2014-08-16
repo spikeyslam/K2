@@ -8,7 +8,7 @@
  */
 
 // Current version of K2
-define( 'K2_CURRENT', '1.5a1' );
+define( 'K2_CURRENT', '2.0a1' );
 
 // URL for the template directory (for use with styles)
 @define( 'TEMPLATEURL', get_bloginfo('stylesheet_directory') );
@@ -21,4 +21,5 @@ load_theme_textdomain('k2', TEMPLATEPATH . '/languages');
 
 /* Blast you red baron! Initialize the K2 system! */
 require_once(TEMPLATEPATH . '/app/classes/k2.php');
-add_action( 'after_setup_theme', array( 'K2', 'init' ) );
+global $k2;
+if ( !is_a($k2, 'K2') ) $k2 = new K2();

@@ -12,6 +12,11 @@ defined('K2_CURRENT') or die ( __('Error: This file can not be loaded directly.'
 
 class K2 {
 
+	public function __construct() {
+		$this->init();
+		add_action( 'after_theme_setup', array( $this, 'init' ), 0 );
+	}
+
 	/**
 	 * Initializes K2
 	 *
@@ -27,16 +32,16 @@ class K2 {
 		require_once(TEMPLATEPATH . '/app/includes/widgets.php');
 		require_once(TEMPLATEPATH . '/app/includes/pluggable.php');
 
-		if ( defined('K2_HEADERS') and K2_HEADERS == true )
-			require_once(TEMPLATEPATH . '/app/classes/header.php');
+		//if ( defined('K2_HEADERS') and K2_HEADERS == true )
+		//	require_once(TEMPLATEPATH . '/app/classes/header.php');
 
 		// Check installed version, upgrade if needed
-		$k2version = get_option('k2version');
+		$k2version = get_theme_mod('k2version');
 
 		if ( $k2version === false )
-			K2::install();
+			$this->install();
 		elseif ( version_compare($k2version, K2_CURRENT, '<') )
-			K2::upgrade($k2version);
+			$this->upgrade($k2version);
 
 		// This theme uses post thumbnails
 		add_theme_support( 'post-thumbnails' );
@@ -51,15 +56,23 @@ class K2 {
 		add_theme_support( 'automatic-feed-links' );
 
 		// This theme allows users to set a custom background
-		if ( version_compare( $wp_version, '3.4', '>=' ) )
-			add_theme_support( 'custom-background' );
-		else
-			add_custom_background();
+		add_theme_support( 'custom-background' );
+
+		// Custom Headers
+		add_theme_support( 'custom-header' );
 
 		// This theme uses wp_nav_menu() in one location.
 		register_nav_menus( array(
 			'header' => __( 'Header Menu', 'k2' ),
 		) );
+
+		// Actions and Filters
+		add_filter( 'mce_css',            array( $this, 'admin_style_visual_editor' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+		add_action( 'wp_print_scripts',   array( $this, 'enqueue_scripts' ) );
+		add_action( 'template_redirect',  array( $this, 'dynamic_content' ) );
+		add_filter( 'query_vars',         array( $this, 'add_custom_query_vars' ) );
+		add_action( 'customize_register', array( $this, 'customize_register' ) );
 
 		// There may be some things we need to do before K2 is initialised
 		// Let's do them now
@@ -73,16 +86,13 @@ class K2 {
 	 * @uses do_action() Provides 'k2_install' action
 	 */
 	function install() {
-		add_option('k2version', K2_CURRENT);
+		set_theme_mod( 'k2version', K2_CURRENT );
 
-		add_option( 'k2optimjs', '0');
-		add_option( 'k2advnav', '2');
-		add_option( 'k2animations', '1' );
-		add_option( 'k2usestyle', '3' );
-		$defaultjs = "// Lightbox v2.03.3 - Adds new images to lightbox\nif (typeof myLightbox != 'undefined' && myLightbox instanceof Lightbox && myLightbox.updateImageList) {\n\tmyLightbox.updateImageList();\n}\n";
-		add_option( 'k2ajaxdonejs', $defaultjs );
+		set_theme_mod( 'k2advnav', '1' );
+		set_theme_mod( 'k2animations', '1' );
+		set_theme_mod( 'k2usestyle', '3' );
 
-		add_option( 'k2postmeta', array(
+		set_theme_mod( 'k2postmeta', array(
 			'standard-above' => __('Published by %author% on %date% in %categories%. %comments% %tags%', 'k2'),
 			'standard-below' => '',
 			'aside-above' => '',
@@ -102,185 +112,13 @@ class K2 {
 	 */
 	function upgrade($previous) {
 		// Install options
-		K2::install();
-
-
-		// Update the post meta options
-		$postmeta = get_option( 'k2postmeta' );
-
-		if ( $entrymeta1 = get_option( 'k2entrymeta1' ) )
-			$postmeta['standard-above'] = $entrymeta1;
-
-		if ( $entrymeta2 = get_option( 'k2entrymeta2' ) )
-			$postmeta['standard-below'] = $entrymeta2;
-
-		update_option( 'k2postmeta', $postmeta );
-		delete_option( 'k2entrymeta1' );
-		delete_option( 'k2entrymeta2' );
-
+		$this->install();
 
 		// Call the upgrade handlers
 		do_action('k2_upgrade', $previous);
 
 		// Update the version
-		update_option('k2version', K2_CURRENT);
-	}
-
-
-	/**
-	 * Removes K2 options
-	 *
-	 * @uses do_action() Provides 'k2_uninstall' action
-	 */
-	function uninstall() {
-		// Delete options
-		delete_option('k2version');
-		delete_option('k2advnav');
-		delete_option('k2optimjs');
-		delete_option('k2usestyle');
-		delete_option('k2postmeta');
-		delete_option('k2animations');
-		delete_option('k2ajaxdonejs');
-
-		// Call the uninstall handlers
-		do_action('k2_uninstall');
-	}
-
-
-	/**
-	 * Restores K2 to default settings
-	 */
-	function restore_defaults() {
-		K2::uninstall();
-		K2::install();
-	}
-
-
-	/**
-	 *
-	 */
-	function admin_init() {
-		// Inside K2 Options page
-		if ( isset($_GET['page']) and ('k2-options' == $_GET['page']) and isset($_REQUEST['k2-options-submit']) ) {
-			check_admin_referer('k2options');
-
-			// Reset K2
-			if ( isset($_REQUEST['restore-defaults']) ) {
-				K2::restore_defaults();
-				wp_redirect('admin.php?page=k2-options&defaults=true');
-				die;
-
-				// Save Settings
-			} elseif ( isset($_REQUEST['save']) and isset($_REQUEST['k2']) ) {
-				K2::update_options();
-				wp_redirect('admin.php?page=k2-options&saved=true');
-				die;
-			}
-		}
-	}
-
-
-	/**
-	 * Adds K2 Options to Appearance menu, adds actions for head and scripts
-	 */
-	function add_options_menu() {
-		$page = add_menu_page( '', __('K2', 'k2'), 'edit_theme_options', 'k2-options', array('K2', 'admin'), get_template_directory_uri() . '/images/k2-16.png', 63);
-		add_submenu_page( 'k2-options', __('K2 Options', 'k2'), __('K2 Options', 'k2'), 'edit_theme_options', 'k2-options', array('K2', 'admin') );
-
-		add_action( "admin_head-$page", array('K2', 'admin_head') );
-		add_action( "admin_print_scripts-$page", array('K2', 'admin_print_scripts') );
-
-		if ( function_exists('add_contextual_help') ) {
-			add_contextual_help($page,
-				'<a href="http://groups.google.com/group/k2-support/">' .  __('K2 Support Group', 'k2') . '</a><br />' .
-				'<a href="http://code.google.com/p/kaytwo/issues/list">' .  __('K2 Bug Tracker', 'k2') . '</a><br />'
-				);
-		}
-	}
-
-
-	/**
-	 * Displays K2 Options page
-	 */
-	function admin() {
-		include(TEMPLATEPATH . '/app/display/options.php');
-	}
-
-
-	/**
-	 * Displays content in HEAD tag. Called by action: admin_head
-	 */
-	function admin_head() {
-		?>
-		<script type="text/javascript" charset="utf-8">
-		//<![CDATA[
-			var defaults_prompt = "<?php _e('Do you want to restore K2 to default settings? This will remove all your K2 settings.', 'k2'); ?>";
-		//]]>
-		</script>
-		<link type="text/css" rel="stylesheet" href="<?php bloginfo('template_url'); ?>/css/options.css" />
-	<?php
-	}
-
-
-	/**
-	 * Enqueues scripts. Called by action: admin_print_scripts
-	 */
-	function admin_print_scripts() {
-		// Add our script to the queue
-		wp_enqueue_script('k2options');
-	}
-
-	/**
-	 * Updates options
-	 *
-	 * @uses do_action() Provides 'k2_update_options' action
-	 */
-	function admin_style_visual_editor($url) {
-
-		if ( !empty($url) )
-			$url .= ',';
-
-		// Change the path here if using sub-directory
-		$url .= trailingslashit( get_stylesheet_directory_uri() ) . 'css/visualeditor.css';
-
-		return $url;
-	}
-
-
-	/**
-	 * Updates options
-	 *
-	 * @uses do_action() Provides 'k2_update_options' action
-	 */
-	function update_options() {
-		// Debug Mode
-		if ( isset($_POST['k2']['debug']) )
-			update_option('k2optimjs', '1');
-		else
-			update_option('k2optimjs', '0');
-
-		// Advanced Navigation
-		update_option('k2advnav', $_POST['k2']['advnav']);
-
-		// JavaScript Animations
-		if ( isset($_POST['k2']['advnav']) && $_POST['k2']['advnav'] == 2)
-			update_option('k2animations', '1');
-		else
-			update_option('k2animations', '0');
-
-		// How to style sidebars, and ehther to use K2's CSS at all
-		update_option('k2usestyle', $_POST['k2']['usestyle']);
-
-		// Top post meta
-		if ( isset( $_POST['k2']['postmeta'] ) && is_array( $_POST['k2']['postmeta'] ) )
-			update_option( 'k2postmeta', array_map( 'stripslashes', $_POST['k2']['postmeta'] ) );
-
-		// Ajax Success JavaScript
-		if ( isset($_POST['k2']['ajaxdonejs']) )
-			update_option( 'k2ajaxdonejs', stripslashes($_POST['k2']['ajaxdonejs']) );
-
-		// K2 Hook
-		do_action('k2_update_options');
+		set_theme_mod('k2version', K2_CURRENT);
 	}
 
 
@@ -434,7 +272,7 @@ class K2 {
 		if ( ! is_admin() ) {
 			wp_enqueue_script('k2functions');
 
-			if ( get_option('k2advnav') != '0' )
+			if ( '1' == get_theme_mod('k2advnav') )
 				wp_enqueue_script('k2advnav');
 
 			// WP 2.7 threaded comments
@@ -443,6 +281,84 @@ class K2 {
 		}
 	}
 
+
+	/**
+	 *
+	 */
+	function customize_register( $wp_customize ) {
+		$wp_customize->add_setting( 'k2usestyle' , array(
+			'default'     => '3',
+			'transport'   => 'refresh',
+		) );
+
+		$wp_customize->add_setting( 'k2advnav' , array(
+			'default'     => '1',
+			'transport'   => 'refresh',
+		) );
+
+		$wp_customize->add_setting( 'k2animations' , array(
+			'default'     => '1',
+			'transport'   => 'refresh',
+		) );
+
+
+		// Layout Section
+		$wp_customize->add_section( 'k2layout' , array(
+			'title'      => __( 'Layout', 'k2' ),
+			'priority'   => 30,
+		) );
+
+		$wp_customize->add_control(
+			'k2usestyle', 
+			array(
+				'label'    => __('Style', 'k2'),
+				'section'  => 'k2layout',
+				'settings' => 'k2usestyle',
+				'type'     => 'radio',
+				'choices'  => array(
+					'3' => __('Flanking Sidebars', 'k2'),
+					'2' => __('Sidebars Right', 'k2'),
+					'1' => __('Sidebars Left', 'k2'),
+					'0' => __('No CSS', 'k2'),
+				),
+			)
+		);
+
+
+		// Advanced Navigation Section
+		$wp_customize->add_section( 'k2advnav' , array(
+			'title'      => __( 'Advanced Navigation', 'k2' ),
+			'priority'   => 30,
+		) );
+
+		$wp_customize->add_control(
+			'k2advnav', 
+			array(
+				'label'    => __('Dynamic Archives & Search', 'k2'),
+				'section'  => 'k2advnav',
+				'settings' => 'k2advnav',
+				'type'     => 'radio',
+				'choices'  => array(
+					'1' => __('On', 'k2'),
+					'0' => __('Off', 'k2'),
+				),
+			)
+		);
+
+		$wp_customize->add_control(
+			'k2animations', 
+			array(
+				'label'    => __('Animations', 'k2'),
+				'section'  => 'k2advnav',
+				'settings' => 'k2animations',
+				'type'     => 'radio',
+				'choices'  => array(
+					'1' => __('On', 'k2'),
+					'0' => __('Off', 'k2'),
+				),
+			)
+		);
+	}
 
 	/**
 	 * Helper function to load all php files in given directory using require_once
@@ -480,7 +396,7 @@ class K2 {
 		$files = array();
 
 		// Scan for all matching files
-		K2::_files_scan( trailingslashit($path), '', $ext, $depth, $relative, $files);
+		$this->_files_scan( trailingslashit($path), '', $ext, $depth, $relative, $files);
 
 		return $files;
 	}
@@ -515,7 +431,7 @@ class K2 {
 
 				// If this is a directory, and the depth of scan is greater than 1 then scan it
 				if(is_dir($file_full_path) and $depth > 1 and !($file == '.' or $file == '..')) {
-					K2::_files_scan($base_path, $file_path . '/', $ext, $depth - 1, $relative, $files);
+					$this->_files_scan($base_path, $file_path . '/', $ext, $depth - 1, $relative, $files);
 
 				// If this is a matching file then add it to the list
 				} elseif(is_file($file_full_path) and (empty($ext) or preg_match('/\.(' . $ext_match . ')$/i', $file))) {
@@ -544,11 +460,11 @@ class K2 {
 	 * @return string new path to file
 	 */
 	function move_file($source, $dest, $overwrite = false) {
-		return K2::_copy_or_move_file($source, $dest, $overwrite, true);
+		return $this->_copy_or_move_file($source, $dest, $overwrite, true);
 	}
 
 	function copy_file($source, $dest, $overwrite = false) {
-		return K2::_copy_or_move_file($source, $dest, $overwrite, false);
+		return $this->_copy_or_move_file($source, $dest, $overwrite, false);
 	}
 
 	function _copy_or_move_file($source, $dest, $overwrite = false, $move = false) {
@@ -570,7 +486,7 @@ class K2 {
 					@unlink($dest);
 				} else {
 					// Find a unique name
-					$dest = K2::get_unique_path($dest);
+					$dest = $this->get_unique_path($dest);
 				}
 			}
 
@@ -598,16 +514,6 @@ class K2 {
 		return $path . sanitize_title_with_dashes($filename . $number) . $ext;
 	}
 }
-
-
-// Actions and Filters
-add_action( 'admin_menu', 		array('K2', 'add_options_menu') );
-add_action( 'admin_init', 		array('K2', 'admin_init') );
-add_filter( 'mce_css', 			array('K2', 'admin_style_visual_editor') );
-add_action( 'wp_enqueue_scripts', array( 'K2', 'register_scripts' ) );
-add_action( 'wp_print_scripts', 	array('K2', 'enqueue_scripts') );
-add_action( 'template_redirect', 	array('K2', 'dynamic_content') );
-add_filter( 'query_vars', 		array('K2', 'add_custom_query_vars') );
 
 // Decrease the priority of redirect_canonical
 remove_action( 'template_redirect', 'redirect_canonical' );
