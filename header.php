@@ -12,26 +12,22 @@ defined( 'K2_CURRENT' ) or die ( __('Error: This file can not be loaded directly
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-<meta charset="<?php bloginfo( 'charset' ); ?>" />
-<meta name="template" content="K2 <?php k2info('version'); ?>" />
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<meta name="template" content="K2 <?php k2info('version'); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title><?php wp_title('&laquo;', true, 'right'); ?><?php bloginfo('name'); ?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />
 
-<?php if ( get_option('k2usestyle') != 0 ): ?>
-	<link rel="stylesheet" type="text/css" href="<?php bloginfo('template_url'); ?>/style.css" />
-<?php endif; ?>
-
-<?php /* Child Themes */ if ( is_child_theme() ): ?>
-	<link rel="stylesheet" type="text/css" href="<?php bloginfo('stylesheet_url'); ?>" />
-<?php endif; ?>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="<?php bloginfo('stylesheet_url'); ?>">
 
 <?php if ( is_singular() ): ?>
-	<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />
+	<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>">
 <?php endif; ?>
 
 <!--[if lt IE 9]>
-<script src="<?php bloginfo( 'template_url' ); ?>/js/html5.js" type="text/javascript"></script>
+<script src="<?php bloginfo( 'template_url' ); ?>/js/html5.js"></script>
 <![endif]-->
 
 <?php wp_head(); ?>
@@ -41,6 +37,7 @@ defined( 'K2_CURRENT' ) or die ( __('Error: This file can not be loaded directly
 
 <?php /* K2 Hook */ do_action('template_body_top'); ?>
 
+<div class="container">
 <div id="page" class="hfeed">
 
 	<?php /* K2 Hook */ do_action('template_before_header'); ?>

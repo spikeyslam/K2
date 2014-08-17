@@ -88,9 +88,12 @@ class K2 {
 	function install() {
 		set_theme_mod( 'k2version', K2_CURRENT );
 
+		set_theme_mod( 'k2sbstyle', 'right' );
+		set_theme_mod( 'k2primarysize', '8' );
+		set_theme_mod( 'k2sb1size', '3' );
+		set_theme_mod( 'k2sb2size', '3' );
 		set_theme_mod( 'k2advnav', '1' );
 		set_theme_mod( 'k2animations', '1' );
-		set_theme_mod( 'k2usestyle', '3' );
 
 		set_theme_mod( 'k2postmeta', array(
 			'standard-above' => __('Published by %author% on %date% in %categories%. %comments% %tags%', 'k2'),
@@ -286,7 +289,22 @@ class K2 {
 	 *
 	 */
 	function customize_register( $wp_customize ) {
-		$wp_customize->add_setting( 'k2usestyle' , array(
+		$wp_customize->add_setting( 'k2sbstyle' , array(
+			'default'     => 'right',
+			'transport'   => 'refresh',
+		) );
+
+		$wp_customize->add_setting( 'k2primarysize' , array(
+			'default'     => '9',
+			'transport'   => 'refresh',
+		) );
+
+		$wp_customize->add_setting( 'k2sb1size' , array(
+			'default'     => '3',
+			'transport'   => 'refresh',
+		) );
+
+		$wp_customize->add_setting( 'k2sb2size' , array(
 			'default'     => '3',
 			'transport'   => 'refresh',
 		) );
@@ -309,20 +327,58 @@ class K2 {
 		) );
 
 		$wp_customize->add_control(
-			'k2usestyle', 
+			'k2sbstyle', 
 			array(
-				'label'    => __('Style', 'k2'),
+				'label'    => __('Sidebars', 'k2'),
 				'section'  => 'k2layout',
-				'settings' => 'k2usestyle',
+				'settings' => 'k2sbstyle',
 				'type'     => 'radio',
 				'choices'  => array(
-					'3' => __('Flanking Sidebars', 'k2'),
-					'2' => __('Sidebars Right', 'k2'),
-					'1' => __('Sidebars Left', 'k2'),
-					'0' => __('No CSS', 'k2'),
+					'right' => __('Right', 'k2'),
+					'left' => __('Left', 'k2'),
+					'both' => __('Both', 'k2'),
 				),
 			)
 		);
+
+		if ( is_active_sidebar('widgets-sidebar-1') || is_active_sidebar('widgets-sidebar-2') ) {
+			$wp_customize->add_control(
+				'k2primarysize', 
+				array(
+					'label'    => __('Primary Column Size', 'k2'),
+					'section'  => 'k2layout',
+					'settings' => 'k2primarysize',
+					'type'     => 'select',
+					'choices'  => array_combine( range(1, 12), range(1, 12) ),
+				)
+			);
+	
+			if ( is_active_sidebar('widgets-sidebar-1') ) {
+				$wp_customize->add_control(
+					'k2sb1size', 
+					array(
+						'label'    => __('Sidebar 1 Column Size', 'k2'),
+						'section'  => 'k2layout',
+						'settings' => 'k2sb1size',
+						'type'     => 'select',
+						'choices'  => array_combine( range(1, 12), range(1, 12) ),
+					)
+				);
+			}
+	
+			if ( is_active_sidebar('widgets-sidebar-2') ) {
+				$wp_customize->add_control(
+					'k2sb2size', 
+					array(
+						'label'    => __('Sidebar 2 Column Size', 'k2'),
+						'section'  => 'k2layout',
+						'settings' => 'k2sb2size',
+						'type'     => 'select',
+						'choices'  => array_combine( range(1, 12), range(1, 12) ),
+					)
+				);
+			}
+		}
 
 
 		// Advanced Navigation Section

@@ -15,7 +15,7 @@
 
 get_header(); ?>
 
-<div class="wrapper">
+<div class="wrapper row">
 
 	<?php if ( is_active_sidebar('widgets-top') ) : ?>
 	<div id="widgets-top" class="widgets">
@@ -23,17 +23,17 @@ get_header(); ?>
 	</div>
 	<?php endif; ?>
 
-	<div class="primary">
-
-		<?php /* K2 Hook */ do_action('template_primary_begin'); ?>
-
-		<div id="content" class="content">
-			<?php get_template_part('blocks/k2-loop'); ?>
-		</div> <!-- .content -->
-
-		<?php /* K2 Hook */ do_action('template_primary_end'); ?>
-
-	</div> <!-- .primary -->
+	<div id="primary-layout" class="<?php k2_layout_class('primary'); ?>">
+		<div id="primary" class="primary">
+			<?php /* K2 Hook */ do_action('template_primary_begin'); ?>
+	
+			<div id="content" class="content">
+				<?php get_template_part('blocks/k2-loop'); ?>
+			</div> <!-- .content -->
+	
+			<?php /* K2 Hook */ do_action('template_primary_end'); ?>
+		</div><!-- #primary -->
+	</div><!-- #primary-layout -->
 
 	<?php get_sidebar(); ?>
 
@@ -43,6 +43,6 @@ get_header(); ?>
 	</div>
 	<?php endif; ?>
 
-</div> <!-- .wrapper -->
+</div><!-- .wrapper -->
 
 <?php get_footer(); ?>

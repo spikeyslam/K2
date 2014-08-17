@@ -188,18 +188,15 @@ function k2_body_class_filter($classes) {
 	else
 		$classes[] = 'columns-one';
 
-	$k2usestyle = get_theme_mod('k2usestyle');
+	$k2usestyle = get_theme_mod('k2sbstyle');
 	switch ( $k2usestyle ) {
-		case '0': // No CSS
-			$classes[] = 'nok2css';
-			break;
-		case '1': // Sidebars Left
-			$classes[] = 'sidebarsleft';
-			break;
-		case '2': // Sidebars Right
+		case 'right': // Sidebars Right
 			$classes[] = 'sidebarsright';
 			break;
-		case '3': // Flanking Sidebars
+		case 'left': // Sidebars Left
+			$classes[] = 'sidebarsleft';
+			break;
+		case 'both': // Flanking Sidebars
 			$classes[] = 'flankingsidebars';
 			break;
 	}
@@ -374,4 +371,56 @@ function k2_browser_classes($ua = null) {
 		endif;
 
 		return $b;
+}
+
+
+function k2_layout_class( $section = 'primary' ) {
+	$style = get_theme_mod('k2sbstyle');
+	$primary_size = get_theme_mod('k2primarysize');
+	$sb1_size = get_theme_mod('k2sb1size');
+	$sb2_size = get_theme_mod('k2sb2size');
+
+	$classes = array( 'col-xs-12' );
+
+	switch ( $section ) {
+		case 'primary':
+			$classes[] = 'col-sm-' . $primary_size;
+			break;
+
+		case 'sb1':
+			$classes[] = 'col-sm-' . $sb1_size;
+			break;
+
+		case 'sb2':
+			$classes[] = 'col-sm-' . $sb2_size;
+			break;
+	}
+	
+	// Push & pull for left sidebars
+	if ( 'left' == $style ) {
+		if ( 'primary' == $section ) {
+			if ( is_active_sidebar('widgets-sidebar-1') && is_active_sidebar('widgets-sidebar-2') ) {
+				$classes[] = 'col-sm-push-' . ( $sb1_size + $sb2_size );
+			} else if ( is_active_sidebar('widgets-sidebar-1') ) {
+				$classes[] = 'col-sm-push-' . $sb1_size;
+			} else if ( is_active_sidebar('widgets-sidebar-2') ) {
+				$classes[] = 'col-sm-push-' . $sb2_size;
+			}
+		} else {
+			$classes[] = 'col-sm-pull-' . $primary_size;
+		}
+	}
+
+	// Push & pull for flanking sidebars
+	if ( 'both' == $style ) {
+		if ( is_active_sidebar('widgets-sidebar-1') ) {
+			if ( 'primary' == $section ) {
+				$classes[] = 'col-sm-push-' . $sb1_size;
+			} else if ( 'sb1' == $section ) {
+				$classes[] = 'col-sm-pull-' . $primary_size;
+			}
+		}
+	}
+
+	echo join( ' ', $classes );
 }

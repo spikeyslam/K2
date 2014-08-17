@@ -10,9 +10,7 @@
 
 	<?php /* K2 Hook */ do_action('template_after_content'); ?>
 
-	<div class="clear"></div>
-</div> <!-- Close Page -->
-
+</div><!-- #page -->
 <hr />
 
 <?php /* K2 Hook */ do_action('template_before_footer'); ?>
@@ -25,7 +23,10 @@
 
 </footer><!-- #footer -->
 
+</div><!-- .container -->
 <?php wp_footer(); ?>
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 </body>
 </html>

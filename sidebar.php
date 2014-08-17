@@ -8,21 +8,17 @@
  */
 
 if ( ! get_post_custom_values('hidesidebar1') && is_active_sidebar('widgets-sidebar-1') ): ?>
-
-	<div id="widgets-sidebar-1" class="widgets secondary">
-		<?php dynamic_sidebar('widgets-sidebar-1'); ?>
-	</div><!-- #widgets-sidebar-1 -->
-
+	<div id="widgets-sidebar-1-layout" class="<?php k2_layout_class('sb1'); ?>">
+		<div id="widgets-sidebar-1" class="widgets secondary">
+			<?php dynamic_sidebar('widgets-sidebar-1'); ?>
+		</div><!-- #widgets-sidebar-1 -->
+	</div><!-- #widgets-sidebar-1-layout -->
 <?php endif; ?>
-
 
 <?php if ( ! get_post_custom_values('hidesidebar2') && is_active_sidebar('widgets-sidebar-2') ): ?>
-
-	<div id="widgets-sidebar-2" class="widgets secondary">
-		<?php dynamic_sidebar('widgets-sidebar-2'); ?>
-	</div><!-- #widgets-sidebar-2 -->
-
+	<div id="widgets-sidebar-2-layout" class="<?php k2_layout_class('sb2'); ?>">
+		<div id="widgets-sidebar-2" class="widgets secondary">
+			<?php dynamic_sidebar('widgets-sidebar-2'); ?>
+		</div><!-- #widgets-sidebar-2 -->
+	</div><!-- #widgets-sidebar-2-layout -->
 <?php endif; ?>
-
-
-<div class="clear"></div>
