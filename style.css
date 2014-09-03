@@ -1538,16 +1538,26 @@ img.wp-smiley {
 		outline: none;
 		}
 
-	#rollprevious, #rollnext, #rollload, #rollpages, #rolldates, #texttrimmer {
+	#rollprevious, #rollnext, #rollpages,
+	#rollload, #rolldates, #texttrimmer {
 		position: absolute;
-		top: 17px;
-		}
-
-	#rollprevious, #rollnext, #rollload, #texttrimmer {
-		position: absolute;
-		top: 0px;
+		top: 0;
+		height: 45px;
 		line-height: 45px;
-		}
+	}
+
+	#rollnext, #rollprevious,
+	#trimmertrim, #trimmeruntrim {
+		color: #666;
+	}
+
+	#rollprevious:hover,
+	#rollnext:hover,
+	#trimmertrim:hover,
+	#trimmeruntrim:hover {
+		cursor: pointer;
+		color: #27d;
+	}
 
 	body.trim #trimmertrim {
 		display: none;
@@ -1560,11 +1570,6 @@ img.wp-smiley {
 	body.trim #trimmeruntrim {
 		display: block;
 	}
-
-	#rollprevious:hover, #rollnext:hover, #rollhome:hover {
-		text-decoration: underline;
-		cursor: pointer;
-		}
 
 	#rollload {
 		background: url('images/spinner.gif') no-repeat center center;
@@ -1579,15 +1584,35 @@ img.wp-smiley {
 		display: none;
 		}
 
-	#rollnext, #rollprevious, .navigation a {
+	.navigation a {
 		color: #666;
 		font-weight: bold;
 		}
 
+	#rollprevious {
+		left: 0;
+		width: 5%;
+		text-align: center;
+	}
+
+	#rollnext {
+		left: 5%;
+		width: 5%;
+		text-align: center;
+	}
+
 	#rollpages {
-		left: 55px;
+		left: 10%;
+		width: 20%;
+		text-align: center;
 		color: #aaa;
 		}
+
+	#rollpages:hover,
+	#rollpages:active {
+		cursor: inherit;
+		text-decoration: none;
+	}
 
 	#rollhover {
 		position: absolute;
@@ -1610,19 +1635,9 @@ img.wp-smiley {
 		position: absolute;
 		color: #999;
 		text-align: center;
-		font-size: .9em;
+		font-size: 11px;
 		top: 22px;
 		margin: 0;
-		}
-
-	#rollprevious {
-		left: 0;
-		text-align: left;
-		}
-
-	#rollnext {
-		right: 0;
-		text-align: right;
 		}
 
 	.emptypage #rollnavigation {
@@ -1656,29 +1671,24 @@ img.wp-smiley {
 	#pagetrackwrap {
 		position: absolute;
 		top: 16px;
-		left: 140px;
-		width: 230px;
+		left: 30%;
+		right: 10%;
 		}
 
 	#pagetrack {
-		height: 6px;
+		height: 10px;
 		background: #eee;
 		border-radius: 10px;
-		-moz-border-radius: 10px;
-		-webkit-border-radius: 10px;
 		border: 1px solid #ddd;
-		margin-top: 3px;
 		}
 
 	#pagehandle {
-		width: 6px;
-		height: 6px;
-		margin: 0 1px;
+		width: 10px;
+		height: 10px;
+		margin-top: -1px;
 		background: #999;
 		cursor: col-resize;
 		border-radius: 10px;
-		-moz-border-radius: 10px;
-		-webkit-border-radius: 10px;
 		}
 
 	#pagehandle:hover {
@@ -1690,9 +1700,8 @@ img.wp-smiley {
 		}
 
 	#texttrimmer {
-		width: 55px;
-		height: 15px;
-		right: 55px;
+		width: 10%;
+		right: 0;
 		}
 
 	.firstpage #texttrimmer,
@@ -1707,16 +1716,12 @@ img.wp-smiley {
 		visibility: visible;
 		}
 
-	#trimmertrim:hover, #trimmeruntrim:hover {
-		text-decoration: underline;
-		}
-
 	#trimmertrim, #trimmeruntrim {
 		cursor: pointer;
-		width: 50px;
 		text-align: center;
-		color: #999;
+		color: #666;
 		}
+
 
 	.trimmed #trimmertrim {
 		display: none;
