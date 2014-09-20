@@ -263,6 +263,14 @@ class K2 {
 			wp_register_script('k2advnav',
 				get_bloginfo('template_directory') . "/js/uncompressed/k2.rollingarchives.js",
 				array('jquery', 'bbq', 'easing', 'ui', 'k2slider', 'hotkeys', 'k2livesearch'), K2_CURRENT);
+            wp_localize_script('k2advnav', 'k2advnav_i18n', array(
+                'pagetext' => __('%d of %d', 'k2'),
+                'older' => __('Older', 'k2'),
+                'newer' => __('Newer', 'k2'),
+                'loading' => __('Loading', 'k2'),
+                'text_trim' => __('Collapse Text', 'k2'),
+                'text_untrim' => __('Expand Text', 'k2'),
+            ));
 		}
 	}
 

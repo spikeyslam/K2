@@ -22,23 +22,20 @@ function RollingArchives( args ) {
 
 	// Localization strings for the UI.
 	RA.pageText = args.pagetext || 'of';
-	var older = args.older || 'Older';
-	var newer = args.newer || 'Newer';
-	var loading = args.loading || 'Loading';
 
 	// Insert the Rolling Archives UI
 	jQuery( RA.content ).before( '\
 		<div id="rollingarchivesbg"></div>\
 		<div id="rollingarchives">\
 			<div id="rollnavigation">\
-				<div id="rollprevious"><span class="glyphicon glyphicon-chevron-left"></span></div>\
-				<div id="rollnext"><span class="glyphicon glyphicon-chevron-right"></span></div>\
+				<div id="rollprevious" data-toggle="tooltip" class="bs-tooltip" title="' + k2advnav_i18n.older + '"><span class="fa fa-fw fa-chevron-left"></span></div>\
+				<div id="rollnext" data-toggle="tooltip" class="bs-tooltip" title="' + k2advnav_i18n.newer + '"><span class="fa fa-fw fa-chevron-right"></span></div>\
 				<div id="rollpages"></div>\
 				<div id="pagetrackwrap"><div id="pagetrack"><div id="pagehandle" data-toggle="tooltip" data-placement="bottom"></div></div></div>\
-				<div id="rollload" title="' + loading + '"><span>' + loading + '</span></div>\
+				<div id="rollload" title="' + k2advnav_i18n.loading + '"><span>' + k2advnav_i18n.loading + '</span></div>\
 				<div id="texttrimmer">\
-					<div id="trimmertrim"><span class="glyphicon glyphicon-resize-small"></span></div>\
-					<div id="trimmeruntrim"><span class="glyphicon glyphicon-resize-full"></span></div>\
+					<div id="trimmertrim" title="' + k2advnav_i18n.text_trim + '"><span class="glyphicon glyphicon-resize-small"></span></div>\
+					<div id="trimmeruntrim" title="' + k2advnav_i18n.text_untrim + '"><span class="glyphicon glyphicon-resize-full"></span></div>\
 				</div>\
 			</div> <!-- #rollnavigation -->\
 		</div> <!-- #rollingarchives -->\

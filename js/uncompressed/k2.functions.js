@@ -200,4 +200,19 @@ function initMenu() {
 
 	jQuery('.menu li ul').parent().addClass('has_children');
 }
-jQuery(document).ready( initMenu )
+
+
+jQuery(function($) {
+	/**
+	 * Add bootstrap classes to post content
+	 */
+	function addBootstrapClasses() {
+		$('.entry-content table').addClass('table');
+	}
+
+	initMenu();
+	addBootstrapClasses();
+
+	$('.bs-tooltip' ).tooltip();
+});
+
