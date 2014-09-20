@@ -120,10 +120,6 @@ function k2_get_rolling_archives_state() {
 	// Future content will be dynamic.
 	$rolling_state['query']['k2dynamic'] = 1;
 
-	// Get list of page dates
-	if ( !is_page() and !is_single() )
-		$rolling_state['pagedates'] = k2_get_rolling_archives_dates($wp_query);
-
 	// Get the current page
 	$rolling_state['curpage'] = intval( get_query_var('paged') );
 	if ( $rolling_state['curpage'] < 1 )
@@ -132,27 +128,6 @@ function k2_get_rolling_archives_state() {
 	return $rolling_state;
 }
 
-
-function k2_get_rolling_archives_dates($query) {
-	global $wpdb;
-
-	$per_page = intval(get_query_var('posts_per_page'));
-	$num_pages = $query->max_num_pages;
-
-	$search = '/FROM\s+?(.*)\s+?LIMIT/siU';
-	preg_match($search, $query->request, $matches);
-
-	$post_dates = $wpdb->get_results("SELECT {$wpdb->posts}.post_date_gmt FROM {$matches[1]}");
-
-	$page_dates = array();
-	setlocale(LC_TIME, WPLANG . '.' . get_option('blog_charset') );
-
-	for ($i = 0; $i < $num_pages; $i++) {
-		$page_dates[] = strftime('%B, %Y', abs(strtotime($post_dates[$i * $per_page]->post_date_gmt . ' GMT')) );
-	}
-
-	return $page_dates;
-}
 
 function output_javascript_url($file) {
 	echo get_bloginfo('template_url') .'/'. $file;

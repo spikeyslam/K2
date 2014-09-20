@@ -45,7 +45,7 @@ function RollingArchives( args ) {
 	' );
 
 	// Set and save the initial state
-	RA.setState( args.pagenumber, args.pagecount, args.query, args.pagedates );
+	RA.setState( args.pagenumber, args.pagecount, args.query );
 	RA.saveState();
 
 	// Add click events
@@ -65,7 +65,6 @@ function RollingArchives( args ) {
 		jQuery( 'body' ).toggleClass( 'trim' )
 	} );
 
-	//jQuery( '#pagehandle' ).tooltip();
 
 	/* 	RA.assignHotkeys(); // Setup Keyboard Shortcuts */
 
@@ -86,11 +85,10 @@ function RollingArchives( args ) {
  * @param {array}    query        The query to fetch from WordPress
  * @param {array}    pagedates    An array of 'month, year' to show as you scrub the RA slider.
  */
-RollingArchives.prototype.setState = function ( pagenumber, pagecount, query, pagedates ) {
+RollingArchives.prototype.setState = function ( pagenumber, pagecount, query ) {
 	RA.pageNumber = pagenumber;
 	RA.pageCount = pagecount;
 	RA.query = query;
-	RA.pageDates = pagedates;
 
 	if ( RA.validatePage( RA.pageNumber ) ) {
 		jQuery( 'body' ).removeClass( 'hiderollingarchives' ).addClass( 'showrollingarchives' );
@@ -127,7 +125,6 @@ RollingArchives.prototype.saveState = function () {
 	RA.prevPageNumber = RA.pageNumber;
 	RA.prevPageCount = RA.pageCount;
 	RA.prevQuery = RA.query;
-	RA.prevPageDates = RA.pageDates;
 	RA.prevContent = jQuery( RA.content ).html();
 };
 
@@ -143,7 +140,7 @@ RollingArchives.prototype.restoreState = function () {
 
 		jQuery.bbq.pushState( '#page=' + RA.prevPageNumber );
 
-		RA.setState( RA.prevPageNumber, RA.prevPageCount, RA.prevQuery, RA.prevPageDates );
+		RA.setState( RA.prevPageNumber, RA.prevPageCount, RA.prevQuery );
 	}
 };
 
@@ -155,7 +152,6 @@ RollingArchives.prototype.restoreState = function () {
  */
 RollingArchives.prototype.updatePageText = function ( page ) {
 	jQuery( '#rollpages' ).html( page + ' ' + RA.pageText + ' ' + RA.pageCount );
-	jQuery( '#pagehandle' ).attr( 'title',  RA.pageDates[page - 1] );
 };
 
 
