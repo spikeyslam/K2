@@ -17,8 +17,6 @@ function RollingArchives( args ) {
 	RA.posts = args.posts;
 	RA.parent = args.parent;
 	RA.offsetTop = args.offset || 0;
-	RA.cache = [];
-	RA.cacheDepth = args.cachedepth || 1;
 
 	// Localization strings for the UI.
 	RA.pageText = args.pagetext || 'of';
@@ -65,8 +63,8 @@ function RollingArchives( args ) {
 
 	/* 	RA.assignHotkeys(); // Setup Keyboard Shortcuts */
 
-	jQuery( '#rollingarchives' ).width( jQuery( '#primary' ).width() );
-	jQuery( '#rollingarchivesbg' ).width( jQuery( '#primary' ).width() + 40 );
+	jQuery( '#rollingarchives' ).width( jQuery( '#primary' ).innerWidth() );
+	jQuery( '#rollingarchivesbg' ).width( jQuery( '#primary' ).innerWidth() + 40 );
 
 	jQuery( 'body' ).addClass( 'rollingarchives' ); // Put the world on notice.
 
@@ -110,8 +108,6 @@ RollingArchives.prototype.setState = function ( pagenumber, pagecount, query ) {
 	} else {
 		jQuery( 'body' ).removeClass( 'showrollingarchives' ).addClass( 'hiderollingarchives' );
 	}
-
-	RA.resetCache();
 };
 
 
@@ -233,41 +229,24 @@ RollingArchives.prototype.gotoPage = function ( newpage ) {
 
 		jQuery.extend( RA.query, { paged: RA.pageNumber, k2dynamic: 1 } );
 
-		if ( RA.cache[RA.pageNumber] == undefined ) {
+		K2.ajaxGet( RA.query,
+			function ( data ) {
+				RA.loading( 'stop' );
 
-			K2.ajaxGet( RA.query,
-				function ( data ) {
-					RA.loading( 'stop' );
+				// Insert the content and show it.
+				jQuery( RA.content ).html( data );
 
-					// Insert the content and show it.
-					jQuery( RA.content ).html( data );
+				/*
+				 if (K2.Animations)
+				 jQuery(RA.content).show("slide", { direction: (page > RA.lastPage ? 'left' : 'right'), easing: 'easeOutExpo' }, 450, jQuery(RA.parent).height('inherit'))
+				 */
 
-					/*
-					 if (K2.Animations)
-					 jQuery(RA.content).show("slide", { direction: (page > RA.lastPage ? 'left' : 'right'), easing: 'easeOutExpo' }, 450, jQuery(RA.parent).height('inherit'))
-					 */
-
-					/*
-					 if (selected == true)
-					 RA.scrollTo(RA.posts, 1, (page > RA.lastPage ? -1 : jQuery(RA.posts).length -2 )) // If the hotkeys were used, select the first post
-					 */
-				}
-			)
-
-		} else {
-
-			RA.loading( 'stop' );
-
-			// Insert the content and show it.
-			jQuery( RA.content ).html( RA.cache[RA.pageNumber] );
-
-			/*
-			 if (K2.Animations)
-			 jQuery(RA.content).show("slide", { direction: (page > RA.lastPage ? 'left' : 'right'), easing: 'easeOutExpo' }, 450, jQuery(RA.parent).height('inherit'))
-			 */
-		}
-
-		RA.updateCache();
+				/*
+				 if (selected == true)
+				 RA.scrollTo(RA.posts, 1, (page > RA.lastPage ? -1 : jQuery(RA.posts).length -2 )) // If the hotkeys were used, select the first post
+				 */
+			}
+		)
 	}
 
 	if ( page == 1 ) {
@@ -278,51 +257,6 @@ RollingArchives.prototype.gotoPage = function ( newpage ) {
 	}
 };
 
-
-/**
- *    Deletes the entries of the cache array.
- **/
-RollingArchives.prototype.resetCache = function () {
-	RA.cache = new Array();
-};
-
-
-/**
- *    Handles caching of pages around the currently displayed page, for great speed and glory.
- **/
-RollingArchives.prototype.updateCache = function () {
-	// Cache pages in proximity as needed
-	var lowerLimit = RA.pageNumber - RA.cacheDepth; // Newer pages
-	var upperLimit = RA.pageNumber + RA.cacheDepth; // Older pages
-
-	// don't go over/under the number of pages
-	if ( lowerLimit < 1 ) lowerLimit = 1;
-	if ( upperLimit > RA.pageCount ) upperLimit = RA.pageCount;
-
-	for ( var i = lowerLimit; i <= upperLimit; i++ ) {
-		if ( i == RA.pageNumber ) continue;
-
-		if ( RA.cache[i] == undefined ) {
-			jQuery.extend( RA.query, { paged: i, k2dynamic: 1 } );
-
-			(function ( i ) {
-				K2.ajaxGet( RA.query, function ( request ) {
-					RA.cache[i] = request
-				} );
-			})( i );
-		}
-	}
-
-	// Purge out of bounds cache.
-	if ( RA.cache.length > 0 ) {
-		for ( var j = 0; j < RA.cache.length; j++ ) {
-			if ( j >= (lowerLimit - 1) && j <= (upperLimit + 1) ) continue;
-
-			delete RA.cache[j];
-		}
-	}
-
-};
 
 /**
  * When a given element scrolls off the top of the screen, add a given classname to 'body'.
